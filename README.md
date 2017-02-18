@@ -108,7 +108,7 @@ fully drained.
 Close the websocket connection and don't attempt to reconnect.
 
 
-### subscribe(topic, handler)
+### up.subscribe(topic, handler)
 
 subscribe to an event that the upsocket connection fires.
 
@@ -134,11 +134,11 @@ up.subscribe('error', function(err) {
 ```
 
 
-### unsubscribe(topic, handler)
+### up.unsubscribe(topic, handler)
 
 remove an event subscription handler. Useful if your code cares about cleaning up properly.
 
-```
+```javascript
 up = upsocket()
 
 function messageReceived(data) {
