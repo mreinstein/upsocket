@@ -93,7 +93,18 @@ Create an upsocket object `up`.
 
 ### up.connect(url)
 
-Establish a connection to a websocker server running at `url`.
+Connect to a websocker server.
+
+`url` may be a connection string, or an existing `WebSocket` instance.
+
+```javascript
+
+var url = 'ws://localhost:7000'
+
+// either of these will work:
+// up.connect(url)
+// up.connect(new WebSocket(url))
+```
 
 
 ### up.send(message)

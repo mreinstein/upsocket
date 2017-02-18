@@ -18,8 +18,9 @@ module.exports = function upsocket() {
     }
   }
 
+  // @param url a string containing the address of the server to connect to, or a WebSocket instance
   let connect = function(url) {
-    socket = new WebSocket(url)
+    socket = (url instanceof WebSocket) ? url : new WebSocket(url)
 
     socket.onopen = function() {
       _publish('open')
@@ -27,10 +28,9 @@ module.exports = function upsocket() {
     }
 
     socket.onclose = function() {
-      //console.log('closed')
       //_publish('close')
       // try to reconnect in 5 seconds
-      setTimeout(function(){ connect(url) }, 1000)
+      setTimeout(function(){ connect(socket.url) }, 1000)
     }
 
     socket.onerror = function(err) {
@@ -79,7 +79,7 @@ module.exports = function upsocket() {
   // send the complete contents of the buffer
   let _drainBuffer = function() {
     const toSend = _buffered[0]
-    if (!toSend) return
+    if (!toSend || !socket) return
 
     socket.send(toSend, function(err) {
       // the 
