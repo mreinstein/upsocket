@@ -27,19 +27,23 @@ module.exports = function upsocket() {
     }
 
     socket.onclose = function() {
-      console.log('connection lost')
-      _publish('close')
+      //console.log('closed')
+      //_publish('close')
       // try to reconnect in 5 seconds
-      setTimeout(function(){ _start(url) }, 5000)
+      setTimeout(function(){ connect(url) }, 1000)
     }
 
     socket.onerror = function(err) {
-      console.log('encountered an error', err)
-      _publish('error', err)
+      // ignore connection refused messages because this module handles
+      // auto-reconnects, so it's not considered an error
+      if (err.code !== 'ECONNREFUSED') {
+        console.error(err)
+        _publish('error', err)
+      }
     }
 
     socket.onmessage = function(message) {
-      _publish('message', message)
+      _publish('message', message.data)
     }
   }
 
