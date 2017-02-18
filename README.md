@@ -1,4 +1,4 @@
-## upsocket
+# upsocket
 
 Keep a websocket connection alive and re-establish state between reconnects with a transactional message queue.
 
@@ -21,9 +21,8 @@ server.on('connection', function(client) {
 
 ```
 
-Now when you want to make a call to the server, guard your connection in the up() function.
-If the connection is alive the callback fires immediately. If the connection is down the message
-is buffered and sends when the connection is ready again.
+This is a simplistic websocket server, listening for connections and responding to all 
+incoming messages with the current server time.
 
 
 client.js:
