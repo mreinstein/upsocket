@@ -1,6 +1,6 @@
 'use strict'
 
-const ws = require('ws')
+const WebSocket = require('ws')
 
 
 const SOCKET_OPEN = 1
