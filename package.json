@@ -1,0 +1,27 @@
+{
+  "name": "upsocket",
+  "version": "0.0.1",
+  "description": "transactional connection queue for websockets",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mreinstein/upsocket.git"
+  },
+  "keywords": [
+    "websocket",
+    "queue",
+    "message",
+    "reconnect",
+    "transaction",
+    "interruption"
+  ],
+  "author": "Mike Reinstein",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mreinstein/upsocket/issues"
+  },
+  "homepage": "https://github.com/mreinstein/upsocket#readme"
+}
