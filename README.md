@@ -111,7 +111,8 @@ var url = 'ws://localhost:7000'
 
 Send a `message` over the connection. If the connection is down, `message` gets buffered
 until the connection is established, at which time it will send all buffered messages until
-fully drained.
+fully drained. The connection will be retried using a fibonacci sequence to determine how long
+wait. Max wait time is 8 seconds per attempt
 
 
 ### up.close()

@@ -4,7 +4,7 @@
   "description": "transactional connection queue for websockets",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tap test/*.js"
   },
   "repository": {
     "type": "git",
@@ -32,5 +32,8 @@
   "homepage": "https://github.com/mreinstein/upsocket#readme",
   "dependencies": {
     "ws": "^2.1.0"
+  },
+  "devDependencies": {
+    "tap": "^10.2.0"
   }
 }

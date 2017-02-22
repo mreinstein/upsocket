@@ -1,6 +1,7 @@
 'use strict'
 
 const WebSocket = require('ws')
+const backoff   = require('./lib/fibonacci-backoff')
 
 
 const SOCKET_OPEN = 1
@@ -10,6 +11,8 @@ module.exports = function upsocket() {
   const _listeners = {}
 
   let socket
+
+  const fibonacciBackoff = backoff({ initialDelay: 100, maxDelay: 8000 })
 
   let close = function() {
     if (socket && socket.readyState === SOCKET_OPEN) {
@@ -23,14 +26,16 @@ module.exports = function upsocket() {
     socket = (url instanceof WebSocket) ? url : new WebSocket(url)
 
     socket.onopen = function() {
+      fibonacciBackoff.reset()
       _publish('open')
       _drainBuffer()
     }
 
     socket.onclose = function() {
       //_publish('close')
-      // try to reconnect in 5 seconds
-      setTimeout(function(){ connect(socket.url) }, 1000)
+      // try to reconnect in ever-increasing time intervals using fibonacci sequence
+      const delayTime = fibonacciBackoff.next()
+      setTimeout(function(){ connect(socket.url) }, delayTime)
     }
 
     socket.onerror = function(err) {
