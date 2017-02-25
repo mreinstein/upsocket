@@ -41,7 +41,7 @@ module.exports = function upsocket() {
     socket.onerror = function(err) {
       // ignore connection refused messages because this module handles
       // auto-reconnects, so it's not considered an error
-      if (err.code !== 'ECONNREFUSED') {
+      if (err.code && err.code !== 'ECONNREFUSED') {
         console.error(err)
         _publish('error', err)
       }
