@@ -9,6 +9,7 @@ module.exports = function upsocket(options={}) {
   const { publish, subscribe, unsubscribe } = pubsub()
   const _buffer = []
   const _preamble = options.preamble
+  const _buffering = (options.buffer === false) ? false : true
   const fibonacciBackoff = backoff({ initialDelay: 100, maxDelay: 8000 })
 
   let socket, _sending, _timeout, _sendPreamble
@@ -52,6 +53,12 @@ module.exports = function upsocket(options={}) {
   let _drainBuffer = function() {
     if (!socket || socket.readyState !== socket.OPEN) {
       _timeout = null
+
+      if (_buffering === false) {
+        // if we're not buffering messages while disconnected, discard contents
+        _buffer.length = 0
+      }
+
       return
     }
 
