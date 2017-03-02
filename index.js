@@ -2,107 +2,69 @@
 
 const WebSocket = require('ws')
 const backoff   = require('./lib/fibonacci-backoff')
+const pubsub    = require('./lib/pubsub')
 
 
-const SOCKET_OPEN = 1
-
+// http://cjihrig.com/blog/how-to-use-websockets/
 module.exports = function upsocket() {
-  const _buffered = []
-  const _listeners = {}
-
-  let socket
+  const { publish, subscribe, unsubscribe } = pubsub()
+  const _buffer = []
+  let socket, _sending, _timeout
 
   const fibonacciBackoff = backoff({ initialDelay: 100, maxDelay: 8000 })
 
-  let close = function() {
-    if (socket && socket.readyState === SOCKET_OPEN) {
-      socket.close()
-      _publish('close')
-    }
-  }
-
-  // @param url a string containing the address of the server to connect to, or a WebSocket instance
   let connect = function(url) {
     socket = (url instanceof WebSocket) ? url : new WebSocket(url)
 
     socket.onopen = function() {
       fibonacciBackoff.reset()
-      _publish('open')
       _drainBuffer()
     }
 
-    socket.onclose = function() {
-      //_publish('close')
+    socket.onclose = function(evt) {
+      //console.log('socket closed. code:', evt.code)
       // try to reconnect in ever-increasing time intervals using fibonacci sequence
       const delayTime = fibonacciBackoff.next()
-      setTimeout(function(){ connect(socket.url) }, delayTime)
+      setTimeout(function() { connect(socket.url) }, delayTime)
     }
 
     socket.onerror = function(err) {
       // ignore connection refused messages because this module handles
       // auto-reconnects, so it's not considered an error
       if (err.code && err.code !== 'ECONNREFUSED') {
-        console.error(err)
-        _publish('error', err)
+        publish('error', err)
       }
     }
 
     socket.onmessage = function(message) {
-      _publish('message', message.data)
+      publish('message', message.data)
     }
   }
 
   let send = function(message) {
-    if (!socket || socket.readyState !== SOCKET_OPEN) {
-      return _buffered.push(message)
-    }
-
-    socket.send(message, function(err) {
-      if (err) {
-        console.log('error sending message:', err)
-        _buffered.push(message)
-      }
-    })
-  }
-
-  let subscribe = function(topic, handler) {
-    if (!_listeners[topic]) _listeners[topic] = []
-    _listeners[topic].push(handler)
-  }
-
-  let unsubscribe = function(topic, handler) {
-    if (_listeners[topic]) {
-      for(let i=0; i < _listeners[topic].length; i++) {
-        if (_listeners[topic][i] === handler) {
-          _listeners[topic].splice(i, 1)
-          return
-        }
-      }
+    _buffer.push(message)
+    if (!_timeout) {
+      _timeout = setTimeout(_drainBuffer, 0)
     }
   }
 
   // send the complete contents of the buffer
   let _drainBuffer = function() {
-    const toSend = _buffered[0]
-    if (!toSend || !socket) return
-
-    socket.send(toSend, function(err) {
-      // the 
-      if(err) {
-        return
-      }
-      _buffered.shift()  // message sent ok, pull it off the queue
-      _drainBuffer()
-    })
-  }
-
-  let _publish = function(topic, ...args) {
-    if(!_listeners[topic]) return
-
-    for(let i=0; i < _listeners[topic].length; i++) {
-      _listeners[topic][i](...args)
+    if (!_buffer.length || !socket || socket.readyState !== socket.OPEN) {
+      _timeout = null
+      return
     }
+
+    if (!_sending) {
+      _sending = true
+      socket.send(_buffer[0])
+    } else if (socket.bufferedAmount === 0) {
+      // current message finished sending, send the next one
+      _buffer.shift()
+      _sending = false
+    }
+    _timeout = setTimeout(_drainBuffer, 0)
   }
 
-  return Object.freeze({ close, connect, send, subscribe, unsubscribe })
+  return Object.freeze({ connect, send, publish, subscribe, unsubscribe })
 }
