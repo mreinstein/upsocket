@@ -86,9 +86,21 @@ time = Sat Feb 18 2017 14:09:02 GMT-0800 (PST)
 
 ## methods
 
-### var up = upsocket()
+### var up = upsocket(options)
 
 Create an upsocket object `up`.
+
+`options` is an optional object with configuration parameters:
+* `preamble` a message to send whenever the server connection is established. This can be used to send
+  authentication details in the first message sent to the websocket server. e.g.,
+
+```javascript
+const up = upsocket({ preamble: JSON.stringify({ userID: 4, questionID: 12 }) })
+
+up.connect('ws://localhost:7000')
+```
+
+every time the client connects, this message will be the first one sent to the server.
 
 
 ### up.connect(url)

@@ -5,24 +5,24 @@ const backoff   = require('./lib/fibonacci-backoff')
 const pubsub    = require('./lib/pubsub')
 
 
-// http://cjihrig.com/blog/how-to-use-websockets/
-module.exports = function upsocket() {
+module.exports = function upsocket(options={}) {
   const { publish, subscribe, unsubscribe } = pubsub()
   const _buffer = []
-  let socket, _sending, _timeout
-
+  const _preamble = options.preamble
   const fibonacciBackoff = backoff({ initialDelay: 100, maxDelay: 8000 })
+
+  let socket, _sending, _timeout, _sendPreamble
 
   let connect = function(url) {
     socket = (url instanceof WebSocket) ? url : new WebSocket(url)
 
     socket.onopen = function() {
       fibonacciBackoff.reset()
+      _sendPreamble = !!_preamble
       _drainBuffer()
     }
 
     socket.onclose = function(evt) {
-      //console.log('socket closed. code:', evt.code)
       // try to reconnect in ever-increasing time intervals using fibonacci sequence
       const delayTime = fibonacciBackoff.next()
       setTimeout(function() { connect(socket.url) }, delayTime)
@@ -50,14 +50,21 @@ module.exports = function upsocket() {
 
   // send the complete contents of the buffer
   let _drainBuffer = function() {
-    if (!_buffer.length || !socket || socket.readyState !== socket.OPEN) {
+    if (!socket || socket.readyState !== socket.OPEN) {
+      _timeout = null
+      return
+    }
+
+    if(!_sendPreamble && !_buffer.length) {
       _timeout = null
       return
     }
 
     if (!_sending) {
       _sending = true
-      socket.send(_buffer[0])
+      socket.send(_sendPreamble ? _preamble : _buffer[0])
+      _sendPreamble = false
+
     } else if (socket.bufferedAmount === 0) {
       // current message finished sending, send the next one
       _buffer.shift()
