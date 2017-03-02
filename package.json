@@ -1,6 +1,6 @@
 {
   "name": "upsocket",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "transactional connection queue for websockets",
   "main": "index.js",
   "scripts": {
