@@ -18,6 +18,7 @@ module.exports = function upsocket(options={}) {
     socket = (url instanceof WebSocket) ? url : new WebSocket(url)
 
     socket.onopen = function() {
+      publish('open')
       fibonacciBackoff.reset()
       _sendPreamble = !!_preamble
       _drainBuffer()
