@@ -12,15 +12,19 @@ module.exports = function upsocket(options={}) {
   const _buffering = (options.buffer === false) ? false : true
   const fibonacciBackoff = backoff({ initialDelay: 100, maxDelay: 8000 })
 
-  let socket, _sending, _timeout, _sendPreamble
+  let socket, _sending
+  let _timeout = null
 
   let connect = function(url) {
     socket = (url instanceof WebSocket) ? url : new WebSocket(url)
 
     socket.onopen = function() {
+      if (_preamble && (!_buffer.length || _buffer[0] !== _preamble)) {
+        _buffer.unshift(_preamble)
+      }
+
       publish('open')
       fibonacciBackoff.reset()
-      _sendPreamble = !!_preamble
       _drainBuffer()
     }
 
@@ -45,7 +49,7 @@ module.exports = function upsocket(options={}) {
 
   let send = function(message) {
     _buffer.push(message)
-    if (!_timeout) {
+    if (_timeout === null) {
       _timeout = setTimeout(_drainBuffer, 0)
     }
   }
@@ -53,7 +57,7 @@ module.exports = function upsocket(options={}) {
   // send the complete contents of the buffer
   let _drainBuffer = function() {
     if (!socket || socket.readyState !== socket.OPEN) {
-      _timeout = null
+      _clearTimeout()
 
       if (_buffering === false) {
         // if we're not buffering messages while disconnected, discard contents
@@ -63,22 +67,29 @@ module.exports = function upsocket(options={}) {
       return
     }
 
-    if(!_sendPreamble && !_buffer.length) {
-      _timeout = null
+    if(!_buffer.length) {
+      _clearTimeout()
       return
     }
 
     if (!_sending) {
       _sending = true
-      socket.send(_sendPreamble ? _preamble : _buffer[0])
-      _sendPreamble = false
+      socket.send(_buffer[0])
 
     } else if (socket.bufferedAmount === 0) {
       // current message finished sending, send the next one
       _buffer.shift()
       _sending = false
     }
+
     _timeout = setTimeout(_drainBuffer, 0)
+  }
+
+  let _clearTimeout = function() {
+    if (_timeout !== null) {
+      clearTimeout(_timeout)
+      _timeout = null
+    }
   }
 
   return Object.freeze({ connect, send, publish, subscribe, unsubscribe })
