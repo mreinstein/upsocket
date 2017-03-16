@@ -12,8 +12,19 @@ module.exports = function upsocket(options={}) {
   const _buffering = (options.buffer === false) ? false : true
   const fibonacciBackoff = backoff({ initialDelay: 100, maxDelay: 8000 })
 
-  let socket, _sending
-  let _timeout = null
+  let socket, _sending 
+  let _timeout = undefined
+  let _shouldReconnect = true
+
+  // close the underlying socket, and disable automatic reconnection
+  // buffered data will not be sent in some cases.
+  let close = function() {
+    _shouldReconnect = false
+    _buffer.length = 0
+    if (socket && socket.readyState === socket.OPEN) {
+      socket.close()
+    }
+  }
 
   let connect = function(url) {
     socket = (url instanceof WebSocket) ? url : new WebSocket(url)
@@ -29,6 +40,11 @@ module.exports = function upsocket(options={}) {
     }
 
     socket.onclose = function(evt) {
+      publish('close')
+      if (!_shouldReconnect) {
+        return
+      }
+
       // try to reconnect in ever-increasing time intervals using fibonacci sequence
       const delayTime = fibonacciBackoff.next()
       setTimeout(function() { connect(socket.url) }, delayTime)
@@ -49,7 +65,7 @@ module.exports = function upsocket(options={}) {
 
   let send = function(message) {
     _buffer.push(message)
-    if (_timeout === null) {
+    if (_timeout === undefined) {
       _timeout = setTimeout(_drainBuffer, 0)
     }
   }
@@ -86,11 +102,11 @@ module.exports = function upsocket(options={}) {
   }
 
   let _clearTimeout = function() {
-    if (_timeout !== null) {
+    if (_timeout !== undefined) {
       clearTimeout(_timeout)
-      _timeout = null
+      _timeout = undefined
     }
   }
 
-  return Object.freeze({ connect, send, publish, subscribe, unsubscribe })
+  return Object.freeze({ close, connect, send, publish, subscribe, unsubscribe })
 }

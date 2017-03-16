@@ -141,7 +141,12 @@ wait. Max wait time is 8 seconds per attempt
 
 ### up.close()
 
-Close the websocket connection and don't attempt to reconnect.
+Closes the underlying websocket connection, clears any buffered unsent data, and don't attempt to reconnect.
+
+Once this method is called, the upsocket instance is basically unusable. You'll need to instantiate a new
+upsocket object.
+
+TODO: perhaps a `reconnect()` method should be added to reactivate the underlying socket?
 
 
 ### up.subscribe(topic, handler)
