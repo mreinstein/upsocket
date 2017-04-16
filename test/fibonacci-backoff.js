@@ -1,7 +1,7 @@
 'use strict'
 
 const backoff = require('../lib/fibonacci-backoff')
-const test  = require('tap').test
+const test    = require('tap').test
 
 
 test('backoff delays should follow a Fibonacci sequence', function(t) {

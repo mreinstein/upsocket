@@ -43,6 +43,8 @@
   },
   "homepage": "https://github.com/mreinstein/upsocket#readme",
   "dependencies": {
+    "next-tick": "^1.0.0",
+    "remove-array-items": "0.0.1",
     "ws": "^2.1.0"
   },
   "devDependencies": {
