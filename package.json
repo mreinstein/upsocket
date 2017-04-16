@@ -43,6 +43,7 @@
   },
   "homepage": "https://github.com/mreinstein/upsocket#readme",
   "dependencies": {
+    "ev-pubsub": "0.0.1",
     "next-tick": "^1.0.0",
     "remove-array-items": "0.0.1",
     "ws": "^2.1.0"
@@ -51,6 +52,6 @@
     "babel-preset-es2015": "^6.24.0",
     "babelify": "^7.3.0",
     "browserify": "^14.1.0",
-    "tap": "^10.2.0"
+    "tap": "^10.3.2"
   }
 }

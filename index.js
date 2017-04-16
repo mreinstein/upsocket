@@ -2,7 +2,7 @@
 
 const WebSocket = require('ws')
 const backoff   = require('./lib/fibonacci-backoff')
-const pubsub    = require('./lib/pubsub')
+const pubsub    = require('ev-pubsub')
 
 
 module.exports = function upsocket(options={}) {
@@ -12,7 +12,7 @@ module.exports = function upsocket(options={}) {
   const _buffering = (options.buffer === false) ? false : true
   const fibonacciBackoff = backoff({ initialDelay: 100, maxDelay: 8000 })
 
-  let socket, _sending 
+  let socket, _sending
   let _timeout = undefined
   let _shouldReconnect = true
 
