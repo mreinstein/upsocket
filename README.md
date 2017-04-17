@@ -7,7 +7,7 @@ Works in both node and the browser.
 
 ## example
 
-server.js:
+example/server.js:
 ```javascript
 var ws = require('ws')
 
@@ -21,11 +21,11 @@ server.on('connection', function(client) {
 
 ```
 
-This is a simplistic websocket server, listening for connections and responding to all 
+This is a simplistic websocket server, listening for connections and responding to all
 incoming messages with the current server time.
 
 
-client.js:
+example/client.js:
 ```javascript
 var upsocket = require('upsocket')
 
@@ -46,7 +46,7 @@ setInterval(function () {
 If we fire the client up first, then wait a few seconds to fire up the server:
 
 ```bash
-$ node client.js & sleep 5; node server.js
+$ node example/client.js & sleep 5; node example/server.js
 [1] 9165
 time = Sat Feb 18 2017 13:48:12 GMT-0800 (PST)
 time = Sat Feb 18 2017 13:48:12 GMT-0800 (PST)
@@ -64,11 +64,11 @@ We can see that the first 5 seconds worth of requests are buffered and all come 
 The requests then come in one per second once the connection has been established.
 
 
-If we kill the server and bring it back again while the client is running we can observe a similar 
+If we kill the server and bring it back again while the client is running we can observe a similar
 discontinuity as all the pending requests come through at `14:09:00`:
 
 ```bash
-$ node client.js 
+$ node client.js
 time = Sat Feb 18 2017 14:08:50 GMT-0800 (PST)
 time = Sat Feb 18 2017 14:08:51 GMT-0800 (PST)
 time = Sat Feb 18 2017 14:09:00 GMT-0800 (PST)
@@ -166,11 +166,11 @@ up.subscribe('close', function() {
 })
 
 up.subscribe('message', function(data) {
-  
+
 })
 
 up.subscribe('error', function(err) {
- 
+
 })
 ```
 
