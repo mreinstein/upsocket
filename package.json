@@ -1,6 +1,6 @@
 {
   "name": "upsocket",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "transactional connection queue for websockets",
   "main": "index.js",
   "scripts": {
@@ -43,7 +43,7 @@
   },
   "homepage": "https://github.com/mreinstein/upsocket#readme",
   "dependencies": {
-    "ev-pubsub": "^0.0.2",
+    "ev-pubsub": "^0.1.0",
     "next-tick": "^1.0.0",
     "remove-array-items": "^0.0.1",
     "ws": "^2.1.0"
