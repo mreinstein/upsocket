@@ -3,7 +3,7 @@
 const upsocket = require('../')
 
 
-const up = upsocket({ preamble: JSON.stringify({ userID: 4, questionID: 12 }) })
+const up = upsocket({ preamble: JSON.stringify({ userID: 4 }) })
 
 up.connect('ws://localhost:7000')
 

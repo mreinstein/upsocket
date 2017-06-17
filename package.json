@@ -33,11 +33,10 @@
   "dependencies": {
     "ev-pubsub": "^2.0.0",
     "remove-array-items": "^1.0.0",
-    "ws": "^2.1.0"
+    "ws": "^3.0.0"
   },
   "devDependencies": {
     "browserify": "^14.1.0",
-    "tap": "^10.3.2",
-    "ws": "^2.2.3"
+    "tap": "^10.3.2"
   }
 }
