@@ -21,7 +21,7 @@ module.exports = function upsocket(options={}) {
   let close = function() {
     _shouldReconnect = false
     _buffer.length = 0
-    if (socket && socket.readyState === socket.OPEN) {
+    if (isOpen()) {
       socket.close()
     }
   }
@@ -63,6 +63,10 @@ module.exports = function upsocket(options={}) {
     }
   }
 
+  let isOpen = function() {
+    return socket && (socket.readyState === socket.OPEN)
+  }
+
   let send = function(message) {
     _buffer.push(message)
     if (_timeout === undefined) {
@@ -72,7 +76,7 @@ module.exports = function upsocket(options={}) {
 
   // send the complete contents of the buffer
   let _drainBuffer = function() {
-    if (!socket || socket.readyState !== socket.OPEN) {
+    if(!isOpen()) {
       _clearTimeout()
 
       if (_buffering === false) {
@@ -108,5 +112,5 @@ module.exports = function upsocket(options={}) {
     }
   }
 
-  return Object.freeze({ close, connect, send, publish, subscribe, unsubscribe })
+  return Object.freeze({ close, connect, isOpen, send, publish, subscribe, unsubscribe })
 }
